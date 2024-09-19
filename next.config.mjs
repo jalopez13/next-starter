@@ -7,7 +7,7 @@ const nextConfig = {
     },
   },
   experimental: {
-    typedRoutes: true,
+    serverComponentsExternalPackages: ["oslo", "@node-rs/argon2", "@node-rs/bcrypt"],
   },
 };
 

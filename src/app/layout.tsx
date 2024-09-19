@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 
 import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/utils";
 
 import "./globals.css";
@@ -23,9 +24,14 @@ type PropsType = {
 
 const RootLayout = ({ children }: PropsType) => {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className="dark"
+      style={{ colorScheme: "dark" }}
+    >
       <body className={cn(`min-h-screen bg-background font-sans antialiased ${inter.variable}`)}>
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );
