@@ -4,9 +4,11 @@ export const userTable = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  username: text("username").notNull().unique(),
-  googleId: text("google_id"),
-  hashedPassword: text("hashed_password").notNull(),
+  email: text("email").notNull().unique(),
+  username: text("username").notNull(),
+  picture: text("picture").notNull(),
+  role: text("role").notNull(),
+  hashedPassword: text("password_hash").notNull(),
 });
 
-export type User = typeof userTable.$inferSelect;
+export type User = Omit<typeof userTable.$inferSelect, "hashedPassword">;

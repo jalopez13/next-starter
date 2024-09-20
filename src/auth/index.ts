@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { cache } from "react";
 
-import { Lucia } from "lucia";
+import { Lucia, TimeSpan } from "lucia";
 
 import { db } from "@/db";
 import { sessionTable, userTable } from "@/db/schema";
@@ -12,17 +12,27 @@ import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
-  sessionCookie: {
-    expires: false,
-    attributes: {
-      secure: env.NODE_ENV === "production",
-    },
+  getSessionAttributes: (/* attributes */) => {
+    return {
+      // sessionId: attributes.sessionId,
+    };
   },
   getUserAttributes: attributes => {
     return {
-      // attributes has the type of DatabaseUserAttributes
+      id: attributes.id,
+      email: attributes.email,
       username: attributes.username,
+      picture: attributes.picture,
+      role: attributes.role,
     };
+  },
+  sessionExpiresIn: new TimeSpan(30, "d"),
+  sessionCookie: {
+    name: "next-starter-session", // change to your session name
+    expires: false, // session cookies have very long lifespan (2 years)
+    attributes: {
+      secure: env.NODE_ENV === "production",
+    },
   },
 });
 
@@ -63,5 +73,10 @@ declare module "lucia" {
 }
 
 interface DatabaseUserAttributes {
+  id: string;
+  google_id: string;
   username: string;
+  email: string;
+  picture: string;
+  role: string;
 }

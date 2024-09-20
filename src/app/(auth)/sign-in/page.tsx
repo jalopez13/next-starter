@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { validateRequest } from "@/auth";
-import { SignIn } from "@/components/sign-in";
+import { SignInForm } from "@/components/sign-in";
 
 const SignInPage = async () => {
   const { user } = await validateRequest();
@@ -12,7 +12,7 @@ const SignInPage = async () => {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <SignIn />
+      <SignInForm />
     </div>
   );
 };

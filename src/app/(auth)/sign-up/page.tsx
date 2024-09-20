@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { validateRequest } from "@/auth";
-import { SignUp } from "@/components/sign-up";
+import { SignUpForm } from "@/components/sign-up";
 
 const SignUpPage = async () => {
   const { user } = await validateRequest();
@@ -12,7 +12,7 @@ const SignUpPage = async () => {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <SignUp />
+      <SignUpForm />
     </div>
   );
 };

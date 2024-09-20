@@ -2,55 +2,48 @@
 
 import { cookies } from "next/headers";
 
-import { generateId } from "lucia";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { lucia } from "@/auth";
 import db from "@/db";
 import { userTable } from "@/db/schema";
-import { SignUpSchema } from "@/types";
+import { signUpSchema } from "@/validators";
 
 import { Argon2id } from "oslo/password";
 
-export const signUpAction = async (values: z.infer<typeof SignUpSchema>) => {
-  // hash password
-  const hashedPassword = await new Argon2id().hash(values.password);
+export const signUpAction = async (values: z.infer<typeof signUpSchema>) => {
+  console.log("passed data: ", values);
 
-  // generate user id
-  const userId = generateId(15);
-
-  // insert user into database
   try {
-    await db
+    // if user already exists, throw an error
+    const existingUser = await db.select().from(userTable).where(eq(userTable.username, values.username)).limit(1);
+
+    if (existingUser.length > 0) {
+      return { error: "User already exists", success: false };
+    }
+
+    const hashedPassword = await new Argon2id().hash(values.password);
+
+    const user = await db
       .insert(userTable)
       .values({
-        id: userId,
-        username: values.username,
-        hashedPassword: hashedPassword,
+        username: values.username.toLowerCase(),
+        email: values.email,
+        hashedPassword,
+        picture: "", // Add a default empty string for the picture field
+        role: "user", // Add a default role, adjust as needed
       })
-      .returning({
-        id: userTable.id,
-        username: userTable.username,
-      });
+      .returning();
 
-    // create session
-    const session = await lucia.createSession(userId, {
-      expiresIn: 60 * 60 * 24 * 30,
-    });
-
-    const sessionCookie = lucia.createSessionCookie(session.id);
-
+    const session = await lucia.createSession(user[0].id, {});
+    const sessionCookie = await lucia.createSessionCookie(session.id);
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-
-    return {
-      success: true,
-      data: {
-        userId,
-      },
-    };
-  } catch (error: unknown) {
-    return {
-      error: error instanceof Error ? error.message : "An unknown error occurred",
-    };
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message, success: false };
+    }
+    return { error: "An unknown error occurred", success: false };
   }
 };

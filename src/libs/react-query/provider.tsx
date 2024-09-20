@@ -1,9 +1,10 @@
-'use client';
+"use client";
 
-import { ReactNode, useState } from 'react';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { getQueryClient } from './query-client';
+import { ReactNode, useState } from "react";
+
+import { getQueryClient } from "./query-client";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 type ProviderType = {
   children: ReactNode;
